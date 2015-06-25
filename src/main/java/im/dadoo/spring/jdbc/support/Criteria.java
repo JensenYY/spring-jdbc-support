@@ -59,8 +59,7 @@ public final class Criteria {
   
   private static String makeConditionSql(Condition condition) {
     StringBuilder sb = new StringBuilder();
-    if (condition != null && condition.getField() != null && condition.getOp() != null
-        && condition.getValue() != null) {
+    if (condition != null && condition.getField() != null && condition.getOp() != null) {
       switch (condition.getOp()) {
         case EQ:
         case NE:
@@ -69,19 +68,28 @@ public final class Criteria {
         case LT:
         case LE:
         case LIKE:
-          sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
-              .append(" ").append(condition.getValue());
+          if (condition.getValue() != null) {
+            sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
+                .append(" ").append(condition.getValue());
+          }
           break;
         case BETWEEN:
-          @SuppressWarnings("unchecked")
-          Pair<String, String> pair = (Pair<String, String>) condition.getValue();
-          sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
-              .append(" ").append(pair.getV1()).append(" ").append("AND").append(" ")
-              .append(pair.getV2());
+          if (condition.getValue() != null) {
+            @SuppressWarnings("unchecked")
+            Pair<String, String> pair = (Pair<String, String>) condition.getValue();
+            sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
+                .append(" ").append(pair.getV1()).append(" ").append("AND").append(" ")
+                .append(pair.getV2());
+          }
+          break;
+        case IS_NULL:
+          sb.append(condition.getField()).append(" ").append(condition.getOp().getName()).append(" ");
           break;
         case IN:
-          sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
-              .append(" ").append("( ").append(condition.getValue()).append(" )");
+          if (condition.getValue() != null) {
+            sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
+                .append(" ").append("( ").append(condition.getValue()).append(" )");
+          }
           break;
       }
     }

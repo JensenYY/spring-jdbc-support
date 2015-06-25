@@ -14,6 +14,7 @@ import im.dadoo.spring.jdbc.support.condition.Conditions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -21,22 +22,20 @@ import org.junit.Test;
  * @author shuwen.zsw
  */
 public class CriteriaTest {
-  
+
   @Test
-  public void testWhere() {
+  public void whereOne() {
     List<Condition> conds = new ArrayList<Condition>();
-    conds.add(Conditions.eq("id"));
-    conds.add(Conditions.between("utc"));
-    conds.add(Conditions.in("name"));
-    System.out.println(Criteria.where(conds));
+    conds.add(Conditions.eq("create_date"));
+    Assert.assertEquals("WHERE create_date = :create_date", Criteria.where(conds).trim());
   }
   
   @Test
-  public void testOrderBy() {
-    List<Pair<String, String>> orders = new ArrayList<>();
-    orders.add(Pair.of("name", "DESC"));
-    orders.add(Pair.of("id", "ASC"));
-    System.out.println(Criteria.orderBy(orders));
+  public void testIsNull() {
+    List<Condition> conds = new ArrayList<Condition>();
+    conds.add(Conditions.isNull("name"));
+    //System.out.println(Criteria.where(conds));
+    Assert.assertEquals("WHERE name IS NULL", Criteria.where(conds).trim());
   }
   
 }

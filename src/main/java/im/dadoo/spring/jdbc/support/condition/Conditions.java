@@ -91,5 +91,9 @@ public final class Conditions {
   public static Condition in(String field) {
     return Conditions.in(field, Util.placeholder(field));
   }
+  
+  public static Condition isNull(String field) {
+    return new Condition(field, Operation.IS_NULL, null);
+  }
 
 }

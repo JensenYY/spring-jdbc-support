@@ -20,7 +20,8 @@ public enum Operation {
   NE("<>"),
   BETWEEN("BETWEEN"),
   LIKE("LIKE"),
-  IN("IN");
+  IN("IN"),
+  IS_NULL("IS NULL");
   
   private final String name;
   
