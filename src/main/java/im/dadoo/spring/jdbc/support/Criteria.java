@@ -9,30 +9,74 @@ import im.dadoo.spring.jdbc.support.condition.Condition;
 import java.util.List;
 
 /**
- * 提供静态方法，用于生成供spring-jdbc使用的where或者orderBy子句
+ * Criteria is used to generate "where" clause and "set" clause dynamically
  * 
- * @author shuwen.zsw
+ * @author codekitten
+ * @since 0.1
  */
 public final class Criteria {
   
+  /** asc string used for function orderBy */
+  public static final String ASC = "ASC";
+  
+  /** desc string used for function orderBy */
+  public static final String DESC = "DESC";
+  
   private Criteria() {}
 
+  
   /**
-   * 根据所提供的conditions，动态生成where的查询子句
-   * 
-   * @param conditions 动态查询条件
-   * @return 查询sql字符串
+   * This function is to generate "SET" string for the "UPDATE" sentence.
+   * When you want to update the fields such as "name" and "state", you can follow the code as below.
+   * <code>
+   *   List<String> fields = new ArrayList<>();
+   *   fields.add("name");
+   *   fields.add("state");
+   *   String clause = Criteria.set(fields);
+   *   //clause will be "SET name = :name, state = :state"
+   * </code>
+   * Then you can use spring-jdbc to update the datebase.
+   * @param fields the fields expected to be updated
+   * @return SET clause
+   * @since 0.1
+   */
+  public static final String set(final List<String> fields) {
+    StringBuilder sb = new StringBuilder("");
+    if (fields != null && !fields.isEmpty()) {
+      sb.append("SET ");
+      String field = fields.get(0);
+      sb.append(String.format("%s=:%s", field, field));
+      for (int i = 1; i < fields.size(); i++) {
+        field = fields.get(i);
+        sb.append(",").append(String.format("%s=:%s", field, field));
+      }
+    }
+    return sb.toString();
+  }
+  
+  /**
+   * This function is to generate "WHERE" clause for all the sql sentence.
+   * When you want to select or update or delete the records with some "WHERE" conditions, 
+   * you can follow the code as below.
+   * <code>
+   *   List<Condition> conds = new ArrayList<>();
+   *   conds.add(Conditions.eq(name));
+   *   conds.add(Conditions.gt(date));
+   *   String clause = Criteria.where(conds);
+   *   //clause will be "WHERE name = :name and date > :date"
+   * </code>
+   * Then you can use spring-jdbc to handle the datebase.
+   * @param conditions conditions for where clause
+   * @return WHERE clause
    */
   public static final String where(final List<Condition> conditions) {
     StringBuilder sb = new StringBuilder("");
     if (conditions != null && !conditions.isEmpty()) {
+      sb.append("WHERE ");
       Condition condition = conditions.get(0);
-      if (condition != null) {
-        sb.append(" WHERE ").append(makeConditionSql(condition));
-
-        for (int i = 1; i < conditions.size(); i++) {
-          sb.append(" AND ").append(makeConditionSql(conditions.get(i)));
-        }
+      sb.append(makeConditionSql(condition));
+      for (int i = 1; i < conditions.size(); i++) {
+        sb.append(" AND ").append(makeConditionSql(conditions.get(i)));
       }
     }
     return sb.toString();
@@ -48,11 +92,11 @@ public final class Criteria {
     StringBuilder sb = new StringBuilder();
     if (orders != null && !orders.isEmpty()) {
       sb.append("ORDER BY ");
-      Pair<String, String> first = orders.get(0);
-      sb.append(first.getV1()).append(" ").append(first.getV2());
+      Pair<String, String> order = orders.get(0);
+      sb.append(String.format("%s %s", order.getV1(), order.getV2()));
       for (int i = 1; i < orders.size(); i++) {
-        Pair<String, String> order = orders.get(i);
-        sb.append(",").append(order.getV1()).append(" ").append(order.getV2());
+        order = orders.get(i);
+        sb.append(",").append(String.format("%s %s", order.getV1(), order.getV2()));
       }
     }
     return sb.toString();
@@ -70,31 +114,29 @@ public final class Criteria {
         case LE:
         case LIKE:
           if (condition.getValue() != null) {
-            sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
-                .append(" ").append(condition.getValue());
+            sb.append(String.format("%s%s%s", condition.getField(), 
+                    condition.getOp().getName(), 
+                    condition.getValue()));
           }
           break;
         case BETWEEN:
           if (condition.getValue() != null) {
             @SuppressWarnings("unchecked")
             Pair<String, String> pair = (Pair<String, String>) condition.getValue();
-            sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
-                .append(" ").append(pair.getV1()).append(" ").append("AND").append(" ")
-                .append(pair.getV2());
+            sb.append(String.format("%s BETWEEN %s AND %s", 
+                    condition.getField(), pair.getV1(), pair.getV2()));
           }
           break;
         case IS_NULL:
-          sb.append(condition.getField()).append(" ").append(condition.getOp().getName()).append(" ");
+          sb.append(String.format("%s IS NULL", condition.getField()));
           break;
         case IN:
           if (condition.getValue() != null) {
-            sb.append(condition.getField()).append(" ").append(condition.getOp().getName())
-                .append(" ").append("( ").append(condition.getValue()).append(" )");
+            sb.append(String.format("%s IN (%s)", condition.getField(), condition.getValue()));
           }
           break;
       }
     }
     return sb.toString();
   }
-  
 }

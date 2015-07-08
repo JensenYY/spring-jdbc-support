@@ -24,18 +24,30 @@ import org.junit.Test;
 public class CriteriaTest {
 
   @Test
-  public void whereOne() {
-    List<Condition> conds = new ArrayList<Condition>();
+  public void test_where() {
+    List<Condition> conds = new ArrayList<>();
     conds.add(Conditions.eq("create_date"));
-    Assert.assertEquals("WHERE create_date = :create_date", Criteria.where(conds).trim());
+    conds.add(Conditions.in("name"));
+    conds.add(Conditions.between("end_date"));
+    conds.add(Conditions.isNull("deleted"));
+    Assert.assertEquals("WHERE create_date=:create_date AND name IN (:name) AND end_date BETWEEN :end_date_1 AND :end_date_2 AND deleted IS NULL", Criteria.where(conds));
   }
   
   @Test
-  public void testIsNull() {
-    List<Condition> conds = new ArrayList<Condition>();
-    conds.add(Conditions.isNull("name"));
-    //System.out.println(Criteria.where(conds));
-    Assert.assertEquals("WHERE name IS NULL", Criteria.where(conds).trim());
+  public void test_order() {
+    List<Pair<String, String>> orders = new ArrayList<>();
+    orders.add(new Pair("id", Criteria.DESC));
+    orders.add(new Pair("name", Criteria.ASC));
+    System.out.println(Criteria.orderBy(orders));
   }
   
+  @Test
+  public void test_set() {
+    List<String> fields = new ArrayList<>();
+    Assert.assertEquals("", Criteria.set(fields));
+    fields.add("name");
+    Assert.assertEquals("SET name=:name", Criteria.set(fields));
+    fields.add("date");
+    Assert.assertEquals("SET name=:name,date=:date", Criteria.set(fields));
+  }
 }
