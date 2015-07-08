@@ -1,21 +1,22 @@
-/*
- * To change this license header, choose License Headers in Project Properties. To change this
- * template file, choose Tools | Templates and open the template in the editor.
- */
-
 package im.dadoo.spring.jdbc.support.condition;
 
 import java.io.Serializable;
 
 /**
- * 描述sql中where的查询条件
+ * 
+ * <p>condition for where clause.example:</p>
+ * <p><code>where id=:id</code></p>
+ * <p>id=:id is a condition.In this condition, "id" is field,"=" is op,":id" is value.</p>
+ * 
  * @author shuwen.zsw
+ * @date 2015年6月25日
+ * @since 0.1
  */
 public class Condition implements Serializable {
 
   private static final long serialVersionUID = 6471949889767283512L;
 
-  /** 查询条件中的字段名  */
+  /**  */
   protected String    field;
   
   /** 查询条件中的操作方式，例如=,<,>等 */

@@ -29,6 +29,7 @@ public final class Criteria {
       Condition condition = conditions.get(0);
       if (condition != null) {
         sb.append(" WHERE ").append(makeConditionSql(condition));
+
         for (int i = 1; i < conditions.size(); i++) {
           sb.append(" AND ").append(makeConditionSql(conditions.get(i)));
         }
