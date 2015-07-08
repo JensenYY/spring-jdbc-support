@@ -8,20 +8,26 @@ package im.dadoo.spring.jdbc.support.condition;
 
 /**
  *
- * @author shuwen.zsw
+ * @author codekitten
  */
 public enum Operation {
   
   EQ("="),
+  NE("<>"),
+  NOT_EQ("!="),
   GT(">"),
   GE(">="), 
   LT("<"),
   LE("<="),
-  NE("<>"),
+  
   BETWEEN("BETWEEN"),
+  NOT_BETWEEN("NOT BETWEEN"),
   LIKE("LIKE"),
+  NOT_LIKE("NOT LIKE"),
   IN("IN"),
-  IS_NULL("IS NULL");
+  NOT_IN("NOT IN"),
+  IS_NULL("IS NULL"),
+  IS_NOT_NULL("IS NOT NULL");
   
   private final String name;
   

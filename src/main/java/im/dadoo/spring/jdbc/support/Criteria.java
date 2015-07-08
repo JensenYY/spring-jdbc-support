@@ -45,10 +45,10 @@ public final class Criteria {
     if (fields != null && !fields.isEmpty()) {
       sb.append("SET ");
       String field = fields.get(0);
-      sb.append(String.format("%s=:%s", field, field));
+      sb.append(String.format("%s = :%s", field, field));
       for (int i = 1; i < fields.size(); i++) {
         field = fields.get(i);
-        sb.append(",").append(String.format("%s=:%s", field, field));
+        sb.append(",").append(String.format("%s = :%s", field, field));
       }
     }
     return sb.toString();
@@ -88,7 +88,7 @@ public final class Criteria {
    * @param orders 动态排序条件
    * @return 生成的order by字符串
    */
-  public static String orderBy(final List<Pair<String, String>> orders) {
+  public static final String orderBy(final List<Pair<String, String>> orders) {
     StringBuilder sb = new StringBuilder();
     if (orders != null && !orders.isEmpty()) {
       sb.append("ORDER BY ");
@@ -102,37 +102,43 @@ public final class Criteria {
     return sb.toString();
   }
   
-  private static String makeConditionSql(Condition condition) {
+  private static String makeConditionSql(final Condition condition) {
     StringBuilder sb = new StringBuilder();
     if (condition != null && condition.getField() != null && condition.getOp() != null) {
       switch (condition.getOp()) {
         case EQ:
         case NE:
+        case NOT_EQ:
         case GT:
         case GE:
         case LT:
         case LE:
         case LIKE:
+        case NOT_LIKE:
           if (condition.getValue() != null) {
-            sb.append(String.format("%s%s%s", condition.getField(), 
+            sb.append(String.format("%s %s %s", condition.getField(), 
                     condition.getOp().getName(), 
                     condition.getValue()));
           }
           break;
         case BETWEEN:
+        case NOT_BETWEEN:
           if (condition.getValue() != null) {
             @SuppressWarnings("unchecked")
             Pair<String, String> pair = (Pair<String, String>) condition.getValue();
-            sb.append(String.format("%s BETWEEN %s AND %s", 
-                    condition.getField(), pair.getV1(), pair.getV2()));
+            sb.append(String.format("%s %s %s AND %s", 
+                    condition.getField(), condition.getOp().getName(), pair.getV1(), pair.getV2()));
           }
           break;
         case IS_NULL:
-          sb.append(String.format("%s IS NULL", condition.getField()));
+        case IS_NOT_NULL:
+          sb.append(String.format("%s %s", condition.getField(), condition.getOp().getName()));
           break;
         case IN:
+        case NOT_IN:
           if (condition.getValue() != null) {
-            sb.append(String.format("%s IN (%s)", condition.getField(), condition.getValue()));
+            sb.append(String.format("%s %s (%s)", 
+                    condition.getField(), condition.getOp().getName(), condition.getValue()));
           }
           break;
       }
