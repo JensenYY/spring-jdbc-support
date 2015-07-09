@@ -3,10 +3,10 @@ Spring Jdbc Support
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/im.dadoo/spring-jdbc-support/badge.svg)](https://maven-badges.herokuapp.com/maven-central/im.dadoo/spring-jdbc-support)
 
 ##Introduction
-dynamically build "where" clause for spring jdbc
-dynamically build "set" clause for spring jdbc
-dynamically build "order by" clause for spring jdbc
-SqlBuilder can directly build "insert","update","select","delete" sql template for spring jdbc
+dynamically build "where" clause for spring jdbc.
+dynamically build "set" clause for spring jdbc.
+dynamically build "order by" clause for spring jdbc.
+SqlBuilder can directly build "insert","update","select","delete" sql template for spring jdbc.
 
 ##License
 The Apache License, Version 2.0
@@ -22,6 +22,7 @@ The Apache License, Version 2.0
 </dependency>
 
 ##Example
+`
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.Lists;
@@ -188,3 +189,5 @@ public class ArticleDAO {
     }
   }
 }
+`
+##ChangeLog
