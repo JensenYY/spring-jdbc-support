@@ -3,7 +3,7 @@
  * template file, choose Tools | Templates and open the template in the editor.
  */
 
-package im.dadoo.spring.jdbc.support;
+package im.dadoo.spring.jdbc.support.util;
 
 import java.io.Serializable;
 

@@ -6,8 +6,9 @@
 
 package im.dadoo.spring.jdbc.support.condition;
 
-import im.dadoo.spring.jdbc.support.Pair;
+import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.util.Util;
+
 
 /**
  * Support various methods to generate Condition object
@@ -313,5 +314,5 @@ public final class Conditions {
   public static Condition isNotNull(String field) {
     return new Condition(field, Operation.IS_NOT_NULL, null);
   }
-
+  
 }

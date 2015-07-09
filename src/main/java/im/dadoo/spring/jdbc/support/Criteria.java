@@ -4,7 +4,11 @@
  */
 package im.dadoo.spring.jdbc.support;
 
+import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.condition.Condition;
+import im.dadoo.spring.jdbc.support.condition.Order;
+import im.dadoo.spring.jdbc.support.util.Util;
+import java.util.ArrayList;
 
 import java.util.List;
 
@@ -16,15 +20,8 @@ import java.util.List;
  */
 public final class Criteria {
   
-  /** asc string used for function orderBy */
-  public static final String ASC = "ASC";
-  
-  /** desc string used for function orderBy */
-  public static final String DESC = "DESC";
-  
   private Criteria() {}
 
-  
   /**
    * This function is to generate "SET" string for the "UPDATE" sentence.
    * When you want to update the fields such as "name" and "state", you can follow the code as below.
@@ -41,17 +38,15 @@ public final class Criteria {
    * @since 0.1
    */
   public static final String set(final List<String> fields) {
-    StringBuilder sb = new StringBuilder("");
+    String result = null;
     if (fields != null && !fields.isEmpty()) {
-      sb.append("SET ");
-      String field = fields.get(0);
-      sb.append(String.format("%s = :%s", field, field));
-      for (int i = 1; i < fields.size(); i++) {
-        field = fields.get(i);
-        sb.append(",").append(String.format("%s = :%s", field, field));
+      List<String> list = new ArrayList<>();
+      for (String field : fields) {
+        list.add(String.format("%s = :%s", field, field));
       }
+      result = String.format("SET %s", Util.join(list));
     }
-    return sb.toString();
+    return result;
   }
   
   /**
@@ -70,36 +65,33 @@ public final class Criteria {
    * @return WHERE clause
    */
   public static final String where(final List<Condition> conditions) {
-    StringBuilder sb = new StringBuilder("");
-    if (conditions != null && !conditions.isEmpty()) {
-      sb.append("WHERE ");
-      Condition condition = conditions.get(0);
-      sb.append(makeConditionSql(condition));
-      for (int i = 1; i < conditions.size(); i++) {
-        sb.append(" AND ").append(makeConditionSql(conditions.get(i)));
+    String result = null;
+    if (conditions != null) {
+      List<String> list = new ArrayList<>();
+      for (Condition condition : conditions) {
+        list.add(makeConditionSql(condition));
       }
+      result = String.format("WHERE %s", Util.join(list, " AND "));
     }
-    return sb.toString();
+    return result;
   }
   
   /**
-   * 根据所提供的orders，生成order by的查询子句
+   * make "ORDER BY" clause
    * 
    * @param orders 动态排序条件
    * @return 生成的order by字符串
    */
-  public static final String orderBy(final List<Pair<String, String>> orders) {
-    StringBuilder sb = new StringBuilder();
+  public static final String orderBy(final List<Pair<String, Order>> orders) {
+    String result = null;
     if (orders != null && !orders.isEmpty()) {
-      sb.append("ORDER BY ");
-      Pair<String, String> order = orders.get(0);
-      sb.append(String.format("%s %s", order.getV1(), order.getV2()));
-      for (int i = 1; i < orders.size(); i++) {
-        order = orders.get(i);
-        sb.append(",").append(String.format("%s %s", order.getV1(), order.getV2()));
+      List<String> list = new ArrayList<>();
+      for (Pair<String, Order> order : orders) {
+        list.add(String.format("%s %s", order.getV1(), order.getV2().getName()));
       }
+      result = String.format("ORDER BY %s", Util.join(list));
     }
-    return sb.toString();
+    return result;
   }
   
   private static String makeConditionSql(final Condition condition) {
@@ -145,4 +137,6 @@ public final class Criteria {
     }
     return sb.toString();
   }
+  
+  
 }
