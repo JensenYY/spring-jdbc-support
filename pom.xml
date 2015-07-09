@@ -10,6 +10,13 @@
   <description>support for generating "where" and "set" clause based on spring-jdbc</description>
   <url>https://github.com/dadooteam/spring-jdbc-support</url>
 
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  
   <developers>
     <developer>
       <id>codekitten</id>
