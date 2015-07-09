@@ -201,4 +201,21 @@ The Apache License, Version 2.0
 	  }
 	}
 	```
+	```javascript
+    $.extend(spring.config, {
+      // my blog title
+      title: 'Spring',
+      // my blog description
+      desc: "A blog engine written by github issues [Fork me on GitHub](https://github.com/zhaoda/spring)",
+      // my github username
+      owner: 'zhaoda',
+      // creator's username
+      creator: 'zhaoda',
+      // the repository name on github for writting issues
+      repo: 'spring',
+      // custom page
+      pages: [
+      ]
+    })
+    ```
 ##ChangeLog
