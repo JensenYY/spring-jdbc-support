@@ -17,6 +17,12 @@
     </license>
   </licenses>
   
+  <scm>
+    <connection>scm:git:git@github.com:dadooteam/spring-jdbc-support.git</connection>
+    <developerConnection>scm:git:git@github.com:dadooteam/spring-jdbc-support.git</developerConnection>
+    <url>git@github.com:dadooteam/spring-jdbc-support.git</url>
+  </scm>
+  
   <developers>
     <developer>
       <id>codekitten</id>
