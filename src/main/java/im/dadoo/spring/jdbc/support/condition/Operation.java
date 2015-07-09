@@ -9,6 +9,7 @@ package im.dadoo.spring.jdbc.support.condition;
 /**
  *
  * @author codekitten
+ * @since 0.1
  */
 public enum Operation {
   
