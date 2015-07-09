@@ -8,6 +8,7 @@ package im.dadoo.spring.jdbc.support.test;
 
 import im.dadoo.spring.jdbc.support.Criteria;
 import im.dadoo.spring.jdbc.support.Pair;
+import im.dadoo.spring.jdbc.support.SqlBuilder;
 import im.dadoo.spring.jdbc.support.condition.Condition;
 import im.dadoo.spring.jdbc.support.condition.Conditions;
 
@@ -63,5 +64,12 @@ public class CriteriaTest {
     Assert.assertEquals("SET name = :name", Criteria.set(fields));
     fields.add("date");
     Assert.assertEquals("SET name = :name,date = :date", Criteria.set(fields));
+  }
+  
+  @Test
+  public void test_sqlBuilder() {
+    List<Condition> conds = new ArrayList<>();
+    conds.add(Conditions.notBetween("date"));
+    System.out.println(SqlBuilder.buildListSql("t_article", conds));
   }
 }
