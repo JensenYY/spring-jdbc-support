@@ -25,7 +25,7 @@ The Apache License, Version 2.0
 	</dependency>
 
 ##Example
-```javascript
+```java
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.Lists;
