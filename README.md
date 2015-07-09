@@ -3,10 +3,13 @@ Spring Jdbc Support
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/im.dadoo/spring-jdbc-support/badge.svg)](https://maven-badges.herokuapp.com/maven-central/im.dadoo/spring-jdbc-support)
 
 ##Introduction
-*dynamically build "where" clause for spring jdbc.
-*dynamically build "set" clause for spring jdbc.
-*dynamically build "order by" clause for spring jdbc.
-*SqlBuilder can directly build "insert","update","select","delete" sql template for spring jdbc.
+dynamically build "where" clause for spring jdbc.
+
+dynamically build "set" clause for spring jdbc.
+
+dynamically build "order by" clause for spring jdbc.
+
+SqlBuilder can directly build "insert","update","select","delete" sql template for spring jdbc.
 
 ##License
 The Apache License, Version 2.0
@@ -53,24 +56,32 @@ The Apache License, Version 2.0
 
 	  //INSERT INTO t_article(title,content,date,click) VALUES(:title,:content,:date,:click)
 	  private static final String INSERT_SQL = SqlBuilder.buildInsertSql(TABLE, FIELDS);
+
 	  //UPDATE t_article SET title=:title,content=:content,date=:date,click=:click WHERE id=:id
 	  private static final String UPDATE_BY_ID_SQL = SqlBuilder.buildUpdateByIdSql(TABLE, FIELDS);
+	  
 	  //UPDATE t_article SET title=:title,content=:content,date=:date,click=:click
 	  private static final String UPDATE_ALL_SQL = SqlBuilder.buildUpdateAllSql(TABLE, FIELDS);
+	  
 	  //DELETE FROM t_article WHERE id=:id
 	  private static final String DELETE_BY_ID_SQL = SqlBuilder.buildDeleteByIdSql(TABLE);
+	  
 	  //DELETE FROM t_article
 	  private static final String DELETE_ALL_SQL = SqlBuilder.buildDeleteAllSql(TABLE);
+	  
 	  //SELECT * FROM t_article WHERE id=:id
 	  private static final String FIND_BY_ID_SQL = SqlBuilder.buildFindByIdSql(TABLE);
+	  
 	  //SELECT count(*) as size FROM t_article
 	  private static final String SIZE_ALL_SQL = SqlBuilder.buildSizeAllSql(TABLE);
 
 	  //The SQL will be executed by jdbcTemplate
 	  @Resource
 	  private NamedParameterJdbcTemplate jdbcTemplate;
+	  
 	  //The mapper is to make relation between table and object
 	  private final RowMapper<Article> mainRowMapper = new ArticleRowMapper();
+	  
 	  //The mapper is to get size value from sql result
 	  private final RowMapper<Long> sizeRowMapper = new SizeRowMapper();
 
