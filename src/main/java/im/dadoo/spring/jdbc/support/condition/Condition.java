@@ -8,8 +8,7 @@ import java.io.Serializable;
  * <p><code>where id=:id</code></p>
  * <p>id=:id is a condition.In this condition, "id" is field,"=" is op,":id" is value.</p>
  * 
- * @author shuwen.zsw
- * @date 2015年6月25日
+ * @author codekitten
  * @since 0.1
  */
 public class Condition implements Serializable {
