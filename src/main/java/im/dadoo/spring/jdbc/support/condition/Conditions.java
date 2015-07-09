@@ -6,9 +6,9 @@
 
 package im.dadoo.spring.jdbc.support.condition;
 
-import im.dadoo.spring.jdbc.support.Pair;
-import java.util.ArrayList;
-import java.util.List;
+import im.dadoo.spring.jdbc.support.util.Pair;
+import im.dadoo.spring.jdbc.support.util.Util;
+
 
 /**
  * Support various methods to generate Condition object
@@ -38,7 +38,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition eq(String field) {
-    return Conditions.eq(field, placeholder(field));
+    return Conditions.eq(field, Util.placeholder(field));
   }
   
   /**
@@ -59,7 +59,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition notEq(String field) {
-    return Conditions.notEq(field, placeholder(field));
+    return Conditions.notEq(field, Util.placeholder(field));
   }
   
   /**
@@ -80,7 +80,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition ne(String field) {
-    return Conditions.ne(field, placeholder(field));
+    return Conditions.ne(field, Util.placeholder(field));
   }
   
   /**
@@ -101,7 +101,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition gt(String field) {
-    return Conditions.gt(field, placeholder(field));
+    return Conditions.gt(field, Util.placeholder(field));
   }
   
   /**
@@ -122,7 +122,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition ge(String field) {
-    return Conditions.ge(field, placeholder(field));
+    return Conditions.ge(field, Util.placeholder(field));
   }
   
   /**
@@ -143,7 +143,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition lt(String field) {
-    return Conditions.lt(field, placeholder(field));
+    return Conditions.lt(field, Util.placeholder(field));
   }
   
   /**
@@ -164,7 +164,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition le(String field) {
-    return Conditions.lt(field, placeholder(field));
+    return Conditions.lt(field, Util.placeholder(field));
   }
   
   /**
@@ -185,7 +185,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition like(String field) {
-    return Conditions.like(field, placeholder(field));
+    return Conditions.like(field, Util.placeholder(field));
   }
   
   /**
@@ -206,7 +206,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition notLike(String field) {
-    return Conditions.notLike(field, placeholder(field));
+    return Conditions.notLike(field, Util.placeholder(field));
   }
   
   /**
@@ -228,7 +228,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition between(String field) {
-    return Conditions.between(field, placeholder(field + "_1"), placeholder(field + "_2"));
+    return Conditions.between(field, Util.placeholder(field + "_1"), Util.placeholder(field + "_2"));
   }
   
   /**
@@ -250,7 +250,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition notBetween(String field) {
-    return Conditions.notBetween(field, placeholder(field + "_1"), placeholder(field + "_2"));
+    return Conditions.notBetween(field, Util.placeholder(field + "_1"), Util.placeholder(field + "_2"));
   }
   
   /**
@@ -271,7 +271,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition in(String field) {
-    return Conditions.in(field, placeholder(field));
+    return Conditions.in(field, Util.placeholder(field));
   }
   
   /**
@@ -292,7 +292,7 @@ public final class Conditions {
    * @since 0.1
    */
   public static Condition notIn(String field) {
-    return Conditions.notIn(field, placeholder(field));
+    return Conditions.notIn(field, Util.placeholder(field));
   }
   
   /**
@@ -314,18 +314,5 @@ public final class Conditions {
   public static Condition isNotNull(String field) {
     return new Condition(field, Operation.IS_NOT_NULL, null);
   }
-
-  private static String placeholder(String field) {
-    return ":" + field;
-  }
   
-  private static List<String> placeholder(List<String> fields) {
-    List<String> result = new ArrayList<>();
-    if (fields != null && !fields.isEmpty()) {
-      for (String field : fields) {
-        result.add(placeholder(field));
-      }
-    }
-    return result;
-  }
 }
