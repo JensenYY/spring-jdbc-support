@@ -9,7 +9,9 @@ import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.condition.Condition;
 import im.dadoo.spring.jdbc.support.condition.Order;
 import im.dadoo.spring.jdbc.support.util.Util;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -19,54 +21,60 @@ public final class SqlBuilder {
   
   private SqlBuilder() {}
   
-  public static final String buildInsertSql(String table, List<String> fields, List<String> values) {
-    String result = null;
-    if (fields == null) {
-      throw new IllegalArgumentException("fields should not be null");
-    } else {
-      if (values == null) {
-        values = Util.placeholder(fields);
-      } 
-      if (values.size() == fields.size()) {
-        for (int i = 0; i < values.size(); i++) {
-          String value = values.get(i);
-          if (value == null || value.isEmpty()) {
-            values.set(i, Util.placeholder(fields.get(i)));
-          }
-        }
-        result = String.format("INSERT INTO %s(%s) VALUES(%s)", 
-                table, Util.join(fields), Util.join(values));
-      } else {
-        throw new IllegalArgumentException(
-                String.format("the size of fields is %d, but the size of values is %d", 
-                        fields.size(), values.size()));
-      }
-    }
+  public static final String buildInsertSql(final String table, final List<String> fields, 
+          final Map<String, String> valueMap) {
+    String result = String.format("INSERT INTO %s%s", table, Criteria.into(fields, valueMap));
     return result;
   }
   
-  public static final String buildInsertSql(String table, List<String> fields) {
-    return buildInsertSql(table, fields, null);
+  public static final String buildInsertSql(final String table, final List<String> fields) {
+    String result = String.format("INSERT INTO %s%s", table, Criteria.into(fields));
+    return result;
   }
   
-  public static final String buildUpdateAllSql(String table, List<String> fields) {
+  public static final String buildUpdateAllSql(final String table, final List<String> fields, 
+          final Map<String, String> valueMap) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("UPDATE %s ", table));
+    sb.append(Criteria.set(fields, valueMap));
+    return sb.toString();
+  }
+  
+  public static final String buildUpdateAllSql(final String table, final List<String> fields) {
     StringBuilder sb = new StringBuilder();
     sb.append(String.format("UPDATE %s ", table));
     sb.append(Criteria.set(fields));
     return sb.toString();
   }
   
-  public static final String buildUpdateByIdSql(String table, List<String> fields) {
+  public static final String buildUpdateByIdSql(final String table, final List<String> fields) {
     StringBuilder sb = new StringBuilder();
     sb.append(buildUpdateAllSql(table, fields)).append(" ");
     sb.append("WHERE id = :id");
     return sb.toString();
   }
   
-  public static final String buildUpdateSql(String table, 
-          List<String> fields, List<Condition> conditions) {
+  public static final String buildUpdateByIdSql(final String table, final List<String> fields,
+          final Map<String, String> valueMap) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(buildUpdateAllSql(table, fields, valueMap)).append(" ");
+    sb.append("WHERE id = :id");
+    return sb.toString();
+  }
+  
+  public static final String buildUpdateSql(final String table, 
+          final List<String> fields, final List<Condition> conditions) {
     StringBuilder sb = new StringBuilder();
     sb.append(buildUpdateAllSql(table, fields)).append(" ");
+    sb.append(Criteria.where(conditions));
+    return sb.toString();
+  }
+  
+  public static final String buildUpdateSql(final String table, 
+          final List<String> fields, final Map<String, String> valueMap, 
+          final List<Condition> conditions) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(buildUpdateAllSql(table, fields, valueMap)).append(" ");
     sb.append(Criteria.where(conditions));
     return sb.toString();
   }

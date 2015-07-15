@@ -11,7 +11,9 @@ import im.dadoo.spring.jdbc.support.condition.Conditions;
 import im.dadoo.spring.jdbc.support.condition.Order;
 import im.dadoo.spring.jdbc.support.util.Pair;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,13 +54,10 @@ public class SqlBuilderTest {
     String sql = SqlBuilder.buildInsertSql(this.table, this.fields);
     Assert.assertEquals("INSERT INTO t_article(title,content,date,click) VALUES(:title,:content,:date,:click)", sql);
     
-    List<String> values = new ArrayList<>();
-    values.add(null);
-    values.add(null);
-    values.add("CURRENT_TIMESTAMP");
-    values.add(null);
-    sql = SqlBuilder.buildInsertSql(this.table, this.fields, values);
-    System.out.println(sql);
+    Map<String, String> valueMap = new HashMap<>();
+    valueMap.put("date", "CURRENT_TIMESTAMP");
+    sql = SqlBuilder.buildInsertSql(this.table, this.fields, valueMap);
+    Assert.assertEquals("INSERT INTO t_article(title,content,date,click) VALUES(:title,:content,CURRENT_TIMESTAMP,:click)", sql);
   }
   
   @Test
@@ -71,7 +70,11 @@ public class SqlBuilderTest {
   public void test_buildUpdateSql() {
     String sql = SqlBuilder.buildUpdateSql(this.table, this.fields, this.conditions);
     Assert.assertEquals("UPDATE t_article SET title = :title,content = :content,date = :date,click = :click WHERE author = :author AND date >= :date", sql);
-    //System.out.println(sql);
+    
+    Map<String, String> valueMap = new HashMap<>();
+    valueMap.put("date", "CURRENT_TIMESTAMP");
+    sql = SqlBuilder.buildUpdateSql(table, fields, valueMap, conditions);
+    Assert.assertEquals("UPDATE t_article SET title = :title,content = :content,date = CURRENT_TIMESTAMP,click = :click WHERE author = :author AND date >= :date", sql);
   }
   
   @Test

@@ -11,6 +11,7 @@ import im.dadoo.spring.jdbc.support.util.Util;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Criteria is used to generate "where" clause and "set" clause dynamically
@@ -22,6 +23,32 @@ public final class Criteria {
   
   private Criteria() {}
 
+  public static final String into(final List<String> fields) {
+    return into(fields, null);
+  }
+  
+  public static final String into(final List<String> fields, final Map<String, String> valueMap) {
+    String result = null;
+    if (fields == null) {
+      throw new IllegalArgumentException("fields should not be null");
+    } else {
+      List<String> values = new ArrayList<>(fields.size());
+      if (valueMap == null || valueMap.isEmpty()) {
+        values = Util.placeholder(fields);
+      } else {
+        for (String field : fields) {
+          String value = valueMap.get(field);
+          if (value == null || value.isEmpty()) {
+            value = Util.placeholder(field);
+          }
+          values.add(value);
+        }
+      }
+      result = String.format("(%s) VALUES(%s)", Util.join(fields), Util.join(values));
+    }
+    return result;
+  }
+  
   /**
    * This function is to generate "SET" string for the "UPDATE" sentence.
    * When you want to update the fields such as "name" and "state", you can follow the code as below.
@@ -38,11 +65,35 @@ public final class Criteria {
    * @since 0.1
    */
   public static final String set(final List<String> fields) {
+    return set(fields, null);
+  }
+  
+  public static final String set(final List<String> fields, final Map<String, String> valueMap) {
     String result = null;
-    if (fields != null && !fields.isEmpty()) {
-      List<String> list = new ArrayList<>();
-      for (String field : fields) {
-        list.add(String.format("%s = :%s", field, field));
+    if (fields == null) {
+      throw new IllegalArgumentException("fields should not be null");
+    } else {
+      List<String> list = new ArrayList<>(fields.size());
+      if (valueMap == null || valueMap.isEmpty()) {
+        for (String field : fields) {
+          if (field == null || field.isEmpty()) {
+            throw new IllegalArgumentException("some field in fields is null");
+          } else {
+            list.add(String.format("%s = :%s", field, field));
+          }
+        }
+      } else {
+        for (String field : fields) {
+          if (field == null || field.isEmpty()) {
+            throw new IllegalArgumentException("some field in fields is null");
+          } else {
+            String value = valueMap.get(field);
+            if (value == null || value.isEmpty()) {
+              value = Util.placeholder(field);
+            }
+            list.add(String.format("%s = %s", field, value));
+          }
+        }
       }
       result = String.format("SET %s", Util.join(list));
     }
@@ -137,6 +188,4 @@ public final class Criteria {
     }
     return sb.toString();
   }
-  
-  
 }
