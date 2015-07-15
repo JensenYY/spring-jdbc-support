@@ -10,10 +10,11 @@ import im.dadoo.spring.jdbc.support.Criteria;
 import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.condition.Condition;
 import im.dadoo.spring.jdbc.support.condition.Conditions;
-import im.dadoo.spring.jdbc.support.condition.Order;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,26 +44,31 @@ public class CriteriaTest {
     conds.add(Conditions.notIn("ids"));
     conds.add(Conditions.notEq("state"));
     Assert.assertEquals("WHERE date NOT BETWEEN :date_1 AND :date_2 AND name NOT LIKE :name AND ids NOT IN (:ids) AND state != :state", Criteria.where(conds));
-    System.out.println(Criteria.where(conds));
   }
   
   @Test
   public void test_orderBy() {
-    List<Pair<String, Order>> orders = new ArrayList<>();
-    orders.add(new Pair("id", Order.DESC));
-    Assert.assertEquals("ORDER BY id DESC", Criteria.orderBy(orders));
-    orders.add(new Pair("name", Order.ASC));
-    Assert.assertEquals("ORDER BY id DESC,name ASC", Criteria.orderBy(orders));
-    System.out.println(Criteria.orderBy(orders));
+    List<String> fields = new ArrayList<>();
+    Map<String, String> valueMap = new HashMap<>();
+    fields.add("id");
+    Assert.assertEquals("ORDER BY id :order@id", Criteria.orderBy(fields));
+    valueMap.put("id", "DESC");
+    Assert.assertEquals("ORDER BY id DESC", Criteria.orderBy(fields, valueMap));
+    fields.add("name");
+    Assert.assertEquals("ORDER BY id DESC,name :order@name", Criteria.orderBy(fields, valueMap));
+    valueMap.put("name", "ASC");
+    Assert.assertEquals("ORDER BY id DESC,name ASC", Criteria.orderBy(fields, valueMap));
   }
   
   @Test
   public void test_set() {
     List<String> fields = new ArrayList<>();
-    Assert.assertEquals(null, Criteria.set(fields));
     fields.add("name");
     Assert.assertEquals("SET name = :name", Criteria.set(fields));
     fields.add("date");
     Assert.assertEquals("SET name = :name,date = :date", Criteria.set(fields));
+    Map<String, String> valueMap = new HashMap<>();
+    valueMap.put("date", "CURRENT_TIMESTAMP");
+    Assert.assertEquals("SET name = :name,date = CURRENT_TIMESTAMP", Criteria.set(fields, valueMap));
   }
 }

@@ -18,7 +18,11 @@ public final class Util {
   private Util() {}
   
   public static String placeholder(String field) {
-    return ":" + field;
+    String result = null;
+    if (field != null && !field.isEmpty()) {
+      result = ":" + field;
+    }
+    return result;
   }
   
   public static List<String> placeholder(List<String> fields) {
