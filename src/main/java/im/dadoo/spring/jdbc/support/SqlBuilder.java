@@ -5,11 +5,7 @@
  */
 package im.dadoo.spring.jdbc.support;
 
-import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.condition.Condition;
-import im.dadoo.spring.jdbc.support.condition.Order;
-import im.dadoo.spring.jdbc.support.util.Util;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,66 +75,83 @@ public final class SqlBuilder {
     return sb.toString();
   }
   
-  public static final String buildDeleteAllSql(String table) {
+  public static final String buildDeleteAllSql(final String table) {
     return String.format("DELETE FROM %s", table);
   }
   
-  public static final String buildDeleteByIdSql(String table) {
+  public static final String buildDeleteByIdSql(final String table) {
     StringBuilder sb = new StringBuilder();
     sb.append(buildDeleteAllSql(table)).append(" ");
     sb.append("id = :id");
     return sb.toString();
   }
   
-  public static final String buildDeleteSql(String table, List<Condition> conditions) {
+  public static final String buildDeleteSql(final String table, final List<Condition> conditions) {
     StringBuilder sb = new StringBuilder();
     sb.append(buildDeleteAllSql(table)).append(" ");
     sb.append(Criteria.where(conditions));
     return sb.toString();
   }
   
-  public static final String buildFindByFieldSql(String table, String field) {
+  public static final String buildFindByFieldSql(final String table, final String field) {
     return String.format("SELECT * FROM %s WHERE %s = :%s LIMIT 1", table, field, field);
   }
   
-  public static final String buildFindByIdSql(String table) {
+  public static final String buildFindByIdSql(final String table) {
     return buildFindByFieldSql(table, "id");
   }
   
-  public static final String buildListSql(String table, List<Condition> conditions, 
-          List<Pair<String, Order>> orders) {
+  public static final String buildListSql(final String table, final List<Condition> conditions, 
+          final List<String> orderFields, final Map<String, String> orderValueMap) {
     StringBuilder sb = new StringBuilder();
     sb.append(String.format("SELECT * FROM %s", table));
     if (conditions != null && !conditions.isEmpty()) {
       sb.append(" ").append(Criteria.where(conditions));
     }
-    if (orders != null && !orders.isEmpty()) {
-      sb.append(" ").append(Criteria.orderBy(orders));
+    if (orderFields != null && !orderFields.isEmpty()) {
+      sb.append(" ").append(Criteria.orderBy(orderFields, orderValueMap));
     }
     return sb.toString();
   }
   
-  public static final String buildListSql(String table, List<Condition> conditions, 
-          List<Pair<String, Order>> orders, long limit) {
+  public static final String buildListLimitSql(final String table, final List<Condition> conditions, 
+          final List<String> orderFields, final Map<String, String> orderValueMap) {
     StringBuilder sb = new StringBuilder();
-    sb.append(SqlBuilder.buildListSql(table, conditions, orders)).append(" ");
+    sb.append(SqlBuilder.buildListSql(table, conditions, orderFields, orderValueMap)).append(" ");
+    sb.append("LIMIT :limit");
+    return sb.toString();
+  }
+  
+  public static final String buildListLimitSql(final String table, final List<Condition> conditions, 
+          final List<String> orderFields, final Map<String, String> orderValueMap, long limit) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(SqlBuilder.buildListSql(table, conditions, orderFields, orderValueMap)).append(" ");
     sb.append(String.format("LIMIT %d", limit));
     return sb.toString();
   }
   
-  public static final String buildListSql(String table, List<Condition> conditions, 
-          List<Pair<String, Order>> orders, int pagecount, int pagesize) {
+  public static final String buildPageSql(final String table, final List<Condition> conditions, 
+          final List<String> orderFields, final Map<String, String> orderValueMap) {
     StringBuilder sb = new StringBuilder();
-    sb.append(buildListSql(table, conditions, orders)).append(" ");
-    sb.append(String.format("LIMIT %d, %d", (pagecount -1) * pagesize, pagesize));
+    sb.append(buildListSql(table, conditions, orderFields, orderValueMap)).append(" ");
+    sb.append("LIMIT :offset, :pagesize");
     return sb.toString();
   }
   
-  public static final String buildSizeAllSql(String table) {
+  public static final String buildPageSql(final String table, final List<Condition> conditions, 
+          final List<String> orderFields, final Map<String, String> orderValueMap,
+          int pagecount, int pagesize) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(buildListSql(table, conditions, orderFields, orderValueMap)).append(" ");
+    sb.append(String.format("LIMIT %d, %d", (pagecount - 1) * pagesize, pagesize));
+    return sb.toString();
+  }
+  
+  public static final String buildSizeAllSql(final String table) {
     return String.format("SELECT count(*) as size FROM %s", table);
   }
   
-  public static final String buildSizeSql(String table, List<Condition> conditions) {
+  public static final String buildSizeSql(final String table, final List<Condition> conditions) {
     StringBuilder sb = new StringBuilder();
     sb.append(buildSizeAllSql(table)).append(" ");
     sb.append(Criteria.where(conditions));

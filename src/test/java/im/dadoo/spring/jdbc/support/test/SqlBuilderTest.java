@@ -8,7 +8,6 @@ package im.dadoo.spring.jdbc.support.test;
 import im.dadoo.spring.jdbc.support.SqlBuilder;
 import im.dadoo.spring.jdbc.support.condition.Condition;
 import im.dadoo.spring.jdbc.support.condition.Conditions;
-import im.dadoo.spring.jdbc.support.condition.Order;
 import im.dadoo.spring.jdbc.support.util.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public class SqlBuilderTest {
   private final String table;
   private final List<String> fields;
   private final List<Condition> conditions;
-  private final List<Pair<String, Order>> orders;
+  private final List<String> orderFields;
   
   public SqlBuilderTest() {
     this.table = "t_article";
@@ -44,9 +43,9 @@ public class SqlBuilderTest {
     conditions.add(Conditions.eq("author"));
     conditions.add(Conditions.ge("date"));
     
-    this.orders = new ArrayList<>();
-    this.orders.add(Pair.of("id", Order.DESC));
-    this.orders.add(Pair.of("title", Order.ASC));
+    this.orderFields = new ArrayList<>();
+    this.orderFields.add("id");
+    this.orderFields.add("title");
   }
   
   @Test
@@ -79,15 +78,40 @@ public class SqlBuilderTest {
   
   @Test
   public void test_buildListSql() {
-    String sql = SqlBuilder.buildListSql(this.table, this.conditions, this.orders, 1, 10);
-    Assert.assertEquals("SELECT * FROM t_article WHERE author = :author AND date >= :date ORDER BY id DESC,title ASC LIMIT 0, 10", sql);
-    //System.out.println(sql);
+    String sql = SqlBuilder.buildListSql(this.table, this.conditions, this.orderFields, null);
+    Assert.assertEquals("SELECT * FROM t_article WHERE author = :author AND date >= :date ORDER BY id :order@id,title :order@title", sql);
+    Map<String, String> orderValueMap = new HashMap<>();
+    orderValueMap.put("id", "DESC");
+    orderValueMap.put("title", "ASC");
+    sql = SqlBuilder.buildListSql(table, conditions, orderFields, orderValueMap);
+    Assert.assertEquals("SELECT * FROM t_article WHERE author = :author AND date >= :date ORDER BY id DESC,title ASC", sql);
+  }
+  
+  @Test
+  public void test_buildListLimitSql() {
+    String sql = SqlBuilder.buildListLimitSql(this.table, this.conditions, this.orderFields, null);
+    Assert.assertEquals("SELECT * FROM t_article WHERE author = :author AND date >= :date ORDER BY id :order@id,title :order@title LIMIT :limit", sql);
+    Map<String, String> orderValueMap = new HashMap<>();
+    orderValueMap.put("id", "DESC");
+    orderValueMap.put("title", "ASC");
+    sql = SqlBuilder.buildListLimitSql(table, conditions, orderFields, orderValueMap);
+    Assert.assertEquals("SELECT * FROM t_article WHERE author = :author AND date >= :date ORDER BY id DESC,title ASC LIMIT :limit", sql);
+  }
+  
+  @Test
+  public void test_buildPageSql() {
+    String sql = SqlBuilder.buildPageSql(this.table, this.conditions, this.orderFields, null);
+    Assert.assertEquals("SELECT * FROM t_article WHERE author = :author AND date >= :date ORDER BY id :order@id,title :order@title LIMIT :offset, :pagesize", sql);
+    Map<String, String> orderValueMap = new HashMap<>();
+    orderValueMap.put("id", "DESC");
+    orderValueMap.put("title", "ASC");
+    sql = SqlBuilder.buildPageSql(table, conditions, orderFields, orderValueMap);
+    Assert.assertEquals("SELECT * FROM t_article WHERE author = :author AND date >= :date ORDER BY id DESC,title ASC LIMIT :offset, :pagesize", sql);
   }
   
   @Test
   public void test_buildSizeSql() {
     String sql = SqlBuilder.buildSizeSql(this.table, this.conditions);
     Assert.assertEquals("SELECT count(*) as size FROM t_article WHERE author = :author AND date >= :date", sql);
-    //System.out.println(sql);
   }
 }

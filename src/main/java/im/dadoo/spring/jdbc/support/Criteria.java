@@ -6,7 +6,6 @@ package im.dadoo.spring.jdbc.support;
 
 import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.condition.Condition;
-import im.dadoo.spring.jdbc.support.condition.Order;
 import im.dadoo.spring.jdbc.support.util.Util;
 import java.util.ArrayList;
 
@@ -130,19 +129,43 @@ public final class Criteria {
   /**
    * make "ORDER BY" clause
    * 
-   * @param orders 动态排序条件
-   * @return 生成的order by字符串
+   * @param fields fields for ordering
+   * @param valueMap 
+   * @return generated parted sql with order
    */
-  public static final String orderBy(final List<Pair<String, Order>> orders) {
+  public static final String orderBy(final List<String> fields, final Map<String, String> valueMap) {
     String result = null;
-    if (orders != null && !orders.isEmpty()) {
+    if (fields != null && !fields.isEmpty()) {
       List<String> list = new ArrayList<>();
-      for (Pair<String, Order> order : orders) {
-        list.add(String.format("%s %s", order.getV1(), order.getV2().getName()));
+      //if no special value,then all the result is field :field
+      if (valueMap == null) {
+        for (String field : fields) {
+          if (field == null || field.isEmpty()) {
+            throw new IllegalArgumentException("some field in fields is null or empty");
+          } else {
+            list.add(String.format("%s :order@%s", field, field));
+          }
+        }
+      } else {
+        for (String field : fields) {
+          if (field == null || field.isEmpty()) {
+            throw new IllegalArgumentException("some field in fields is null or empty");
+          } else {
+            String value = valueMap.get(field);
+            if (value == null || value.isEmpty()) {
+              value = Util.placeholder("order@" + field);
+            }
+            list.add(String.format("%s %s", field, value));
+          }
+        }
       }
       result = String.format("ORDER BY %s", Util.join(list));
     }
     return result;
+  }
+  
+  public static final String orderBy(final List<String> fields) {
+    return orderBy(fields, null);
   }
   
   private static String makeConditionSql(final Condition condition) {
