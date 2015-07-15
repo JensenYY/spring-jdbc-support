@@ -51,6 +51,14 @@ public class SqlBuilderTest {
   public void test_buildInsertSql() {
     String sql = SqlBuilder.buildInsertSql(this.table, this.fields);
     Assert.assertEquals("INSERT INTO t_article(title,content,date,click) VALUES(:title,:content,:date,:click)", sql);
+    
+    List<String> values = new ArrayList<>();
+    values.add(null);
+    values.add(null);
+    values.add("CURRENT_TIMESTAMP");
+    values.add(null);
+    sql = SqlBuilder.buildInsertSql(this.table, this.fields, values);
+    System.out.println(sql);
   }
   
   @Test

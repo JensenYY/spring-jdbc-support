@@ -19,9 +19,34 @@ public final class SqlBuilder {
   
   private SqlBuilder() {}
   
+  public static final String buildInsertSql(String table, List<String> fields, List<String> values) {
+    String result = null;
+    if (fields == null) {
+      throw new IllegalArgumentException("fields should not be null");
+    } else {
+      if (values == null) {
+        values = Util.placeholder(fields);
+      } 
+      if (values.size() == fields.size()) {
+        for (int i = 0; i < values.size(); i++) {
+          String value = values.get(i);
+          if (value == null || value.isEmpty()) {
+            values.set(i, Util.placeholder(fields.get(i)));
+          }
+        }
+        result = String.format("INSERT INTO %s(%s) VALUES(%s)", 
+                table, Util.join(fields), Util.join(values));
+      } else {
+        throw new IllegalArgumentException(
+                String.format("the size of fields is %d, but the size of values is %d", 
+                        fields.size(), values.size()));
+      }
+    }
+    return result;
+  }
+  
   public static final String buildInsertSql(String table, List<String> fields) {
-    List<String> values = Util.placeholder(fields);
-    return String.format("INSERT INTO %s(%s) VALUES(%s)", table, Util.join(fields), Util.join(values));
+    return buildInsertSql(table, fields, null);
   }
   
   public static final String buildUpdateAllSql(String table, List<String> fields) {
