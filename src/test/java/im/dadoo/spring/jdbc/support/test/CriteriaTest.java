@@ -7,14 +7,11 @@
 package im.dadoo.spring.jdbc.support.test;
 
 import im.dadoo.spring.jdbc.support.Criteria;
-import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.condition.Condition;
 import im.dadoo.spring.jdbc.support.condition.Conditions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,17 +44,18 @@ public class CriteriaTest {
   }
   
   @Test
+  public void test_where_3() {
+    List<Condition> conds = new ArrayList<>();
+    Assert.assertEquals(null, Criteria.where(conds));
+  }
+  
+  @Test
   public void test_orderBy() {
     List<String> fields = new ArrayList<>();
-    Map<String, String> valueMap = new HashMap<>();
-    fields.add("id");
-    Assert.assertEquals("ORDER BY id :order@id", Criteria.orderBy(fields));
-    valueMap.put("id", "DESC");
-    Assert.assertEquals("ORDER BY id DESC", Criteria.orderBy(fields, valueMap));
+    fields.add("date");
+    Assert.assertEquals("ORDER BY date :order@date", Criteria.orderBy(fields));
     fields.add("name");
-    Assert.assertEquals("ORDER BY id DESC,name :order@name", Criteria.orderBy(fields, valueMap));
-    valueMap.put("name", "ASC");
-    Assert.assertEquals("ORDER BY id DESC,name ASC", Criteria.orderBy(fields, valueMap));
+    Assert.assertEquals("ORDER BY date :order@date,name :order@name", Criteria.orderBy(fields));
   }
   
   @Test
@@ -67,8 +65,13 @@ public class CriteriaTest {
     Assert.assertEquals("SET name = :name", Criteria.set(fields));
     fields.add("date");
     Assert.assertEquals("SET name = :name,date = :date", Criteria.set(fields));
-    Map<String, String> valueMap = new HashMap<>();
-    valueMap.put("date", "CURRENT_TIMESTAMP");
-    Assert.assertEquals("SET name = :name,date = CURRENT_TIMESTAMP", Criteria.set(fields, valueMap));
+    List<String> values = null;
+    Assert.assertEquals("SET name = :name,date = :date", Criteria.set(fields, values));
+    values = new ArrayList<>();
+    values.add(null);
+    values.add("a_date");
+    Assert.assertEquals("SET name = :name,date = :a_date", Criteria.set(fields, values));
+    values.set(0, "a_name");
+    Assert.assertEquals("SET name = :a_name,date = :a_date", Criteria.set(fields, values));
   }
 }

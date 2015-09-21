@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>im.dadoo</groupId>
   <artifactId>spring-jdbc-support</artifactId>
-  <version>0.2</version>
+  <version>0.3</version>
   <packaging>jar</packaging>
   <name>Spring Jdbc Support</name>
   <description>support for generating "where" and "set" clause based on spring-jdbc</description>

@@ -18,7 +18,7 @@ public class Condition implements Serializable {
   /**  */
   protected String    field;
   
-  /** 查询条件中的操作方式，例如=,<,>等 */
+  /** 查询条件中的操作方式，例如=,&lt;,&gt;等 */
   protected Operation op;
   
   /** 查询条件中的值  */

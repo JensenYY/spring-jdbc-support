@@ -1,7 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties. To change this
- * template file, choose Tools | Templates and open the template in the editor.
- */
 package im.dadoo.spring.jdbc.support;
 
 import im.dadoo.spring.jdbc.support.util.Pair;
@@ -13,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Criteria is used to generate "where" clause and "set" clause dynamically
+ * Criteria is used to generate "where" clause, "set" clause and "order" clause dynamically
  * 
  * @author codekitten
  * @since 0.1
@@ -52,7 +48,7 @@ public final class Criteria {
    * This function is to generate "SET" string for the "UPDATE" sentence.
    * When you want to update the fields such as "name" and "state", you can follow the code as below.
    * <code>
-   *   List<String> fields = new ArrayList<>();
+   *   List&lt;String&gt; fields = new ArrayList&lt;&gt;();
    *   fields.add("name");
    *   fields.add("state");
    *   String clause = Criteria.set(fields);
@@ -67,35 +63,64 @@ public final class Criteria {
     return set(fields, null);
   }
   
-  public static final String set(final List<String> fields, final Map<String, String> valueMap) {
+  /**
+   * This function is to generate "SET" string for the "UPDATE" sentence.But the value could be customized.
+   * When you want to update the fields such as "name" and "state", you can follow the code as below.
+   * <code>
+   *   List&lt;String&gt; fields = new ArrayList&lt;&gt;();
+   *   fields.add("name");
+   *   fields.add("state");
+   *   
+   *   List&lt;String&gt; values1 = new ArrayList&lt;&gt;();
+   *   values1.add("test_name");
+   *   values1.add("test_state");
+   *   String clause1 = Criteria.set(fields,values1);
+   *   //clause1 will be "SET name = :test_name, state = :test_state"
+   *   
+   *   List&lt;String&gt; values2 = new ArrayList&lt;&gt;();
+   *   values2.add(null);
+   *   values2.add("test_state");
+   *   String clause2 = Criteria.set(fields,values2);
+   *   //clause2 will be "SET name = :name, state = :test_state"
+   * </code>
+   * Then you can use spring-jdbc to update the datebase.
+   * 
+   * Caution:If the values is not null, the length of fields and values must be the same!
+   * 
+   * @param fields
+   * @param values
+   * @return
+   * @since 0.3
+   */
+  public static final String set(List<String> fields, List<String> values) {
     String result = null;
-    if (fields == null) {
-      throw new IllegalArgumentException("fields should not be null");
-    } else {
-      List<String> list = new ArrayList<>(fields.size());
-      if (valueMap == null || valueMap.isEmpty()) {
-        for (String field : fields) {
-          if (field == null || field.isEmpty()) {
-            throw new IllegalArgumentException("some field in fields is null");
-          } else {
-            list.add(String.format("%s = :%s", field, field));
-          }
-        }
-      } else {
-        for (String field : fields) {
-          if (field == null || field.isEmpty()) {
-            throw new IllegalArgumentException("some field in fields is null");
-          } else {
-            String value = valueMap.get(field);
-            if (value == null || value.isEmpty()) {
-              value = Util.placeholder(field);
-            }
-            list.add(String.format("%s = %s", field, value));
-          }
-        }
-      }
-      result = String.format("SET %s", Util.join(list));
+    
+    if (!Util.checkFields(fields)) {
+      throw new IllegalArgumentException("fields illegal");
     }
+    if (values == null) {
+      values = new ArrayList<>();
+      for (String field : fields) {
+        values.add(field);
+      }
+    }
+    if (fields.size() != values.size()) {
+      throw new IllegalArgumentException("The length of fields and values should be the same");
+    }
+    
+    List<String> kvs = new ArrayList<>(fields.size());
+    for (int i = 0; i < fields.size(); i++) {
+      String field = fields.get(i);
+      String value = values.get(i);
+      if (field == null || field.isEmpty()) {
+        throw new IllegalArgumentException("some field in fields is null or empty");
+      }
+      if (value == null || value.isEmpty()) {
+        value = field;
+      }
+      kvs.add(String.format("%s = %s", field, Util.placeholder(value)));
+    }
+    result = String.format("SET %s", Util.join(kvs));
     return result;
   }
   
@@ -104,11 +129,11 @@ public final class Criteria {
    * When you want to select or update or delete the records with some "WHERE" conditions, 
    * you can follow the code as below.
    * <code>
-   *   List<Condition> conds = new ArrayList<>();
+   *   List&lt;Condition&gt; conds = new ArrayList&lt;&gt;();
    *   conds.add(Conditions.eq(name));
    *   conds.add(Conditions.gt(date));
    *   String clause = Criteria.where(conds);
-   *   //clause will be "WHERE name = :name and date > :date"
+   *   //clause will be "WHERE name = :name and date &gt; :date"
    * </code>
    * Then you can use spring-jdbc to handle the datebase.
    * @param conditions conditions for where clause
@@ -116,56 +141,61 @@ public final class Criteria {
    */
   public static final String where(final List<Condition> conditions) {
     String result = null;
-    if (conditions != null) {
+    if (conditions != null && !conditions.isEmpty()) {
+      if (!Util.checkConditions(conditions)) {
+        throw new IllegalArgumentException("conditions illegal");
+      }
       List<String> list = new ArrayList<>();
       for (Condition condition : conditions) {
         list.add(makeConditionSql(condition));
       }
       result = String.format("WHERE %s", Util.join(list, " AND "));
     }
-    return result;
-  }
-  
-  /**
-   * make "ORDER BY" clause
-   * 
-   * @param fields fields for ordering
-   * @param valueMap 
-   * @return generated parted sql with order
-   */
-  public static final String orderBy(final List<String> fields, final Map<String, String> valueMap) {
-    String result = null;
-    if (fields != null && !fields.isEmpty()) {
-      List<String> list = new ArrayList<>();
-      //if no special value,then all the result is field :field
-      if (valueMap == null) {
-        for (String field : fields) {
-          if (field == null || field.isEmpty()) {
-            throw new IllegalArgumentException("some field in fields is null or empty");
-          } else {
-            list.add(String.format("%s :order@%s", field, field));
-          }
-        }
-      } else {
-        for (String field : fields) {
-          if (field == null || field.isEmpty()) {
-            throw new IllegalArgumentException("some field in fields is null or empty");
-          } else {
-            String value = valueMap.get(field);
-            if (value == null || value.isEmpty()) {
-              value = Util.placeholder("order@" + field);
-            }
-            list.add(String.format("%s %s", field, value));
-          }
-        }
-      }
-      result = String.format("ORDER BY %s", Util.join(list));
-    }
+    
     return result;
   }
   
   public static final String orderBy(final List<String> fields) {
     return orderBy(fields, null);
+  }
+  
+  /**
+   * This function is to generate "ORDER BY" clause for select sql sentence.
+   * you can follow the code as below to use this function.
+   * 
+   * @param fields fields for ordering
+   * @param values 
+   * @return generated parted sql with order
+   * @since 0.3
+   */
+  public static final String orderBy(List<String> fields, List<String> values) {
+    String result = null;
+    if (!Util.checkFields(fields)) {
+      throw new IllegalArgumentException("fields illegal");
+    }
+    if (values == null) {
+      values = new ArrayList<>();
+      for (String field : fields) {
+        values.add(String.format("order@%s", field));
+      }
+    }
+    if (fields.size() != values.size()) {
+      throw new IllegalArgumentException("The length of fields and values should be the same");
+    }
+    List<String> kvs = new ArrayList<>(fields.size());
+    for (int i = 0; i < fields.size(); i++) {
+      String field = fields.get(i);
+      String value = values.get(i);
+      if (field == null || field.isEmpty()) {
+        throw new IllegalArgumentException("some field in fields is null or empty");
+      }
+      if (value == null || value.isEmpty()) {
+        value = String.format("order@%s", field);
+      }
+      kvs.add(String.format("%s %s", field, Util.placeholder(value)));
+    }
+    result = String.format("ORDER BY %s", Util.join(kvs));
+    return result;    
   }
   
   private static String makeConditionSql(final Condition condition) {

@@ -11,8 +11,6 @@ import java.io.Serializable;
  * <p>Pair is used to define sql parameter which contains two field.<p>
  * <p>For example, BETWEEN clause contains two fields such as begin and end</p>
  * @author codekitten
- * @param <V1>
- * @param <V2>
  * @since 0.1
  */
 public final class Pair<V1, V2> implements Serializable {
@@ -29,8 +27,6 @@ public final class Pair<V1, V2> implements Serializable {
   
   /**
    * This function used to create a new Pair object.
-   * @param <V1>
-   * @param <V2>
    * @param v1
    * @param v2
    * @return 

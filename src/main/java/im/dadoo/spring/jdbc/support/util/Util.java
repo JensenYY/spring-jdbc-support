@@ -8,6 +8,8 @@ package im.dadoo.spring.jdbc.support.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import im.dadoo.spring.jdbc.support.condition.Condition;
+
 /**
  *
  * @author codekitten
@@ -48,5 +50,24 @@ public final class Util {
       }
     }
     return sb.toString();
+  }
+  
+  public static final boolean checkFields(List<String> fields) {
+    boolean result = true;
+    result = result && fields != null && !fields.isEmpty();
+    for (String field : fields) {
+      result = result && field != null && !field.isEmpty();
+    }
+    return result;
+  }
+  
+  public static final boolean checkConditions(List<Condition> conditions) {
+    boolean result = true;
+    for (Condition condition : conditions) {
+      result = result && condition != null;
+      result = result && condition.getField() != null && !condition.getField().isEmpty();
+      result = result && condition.getOp() != null;
+    }
+    return result;
   }
 }
