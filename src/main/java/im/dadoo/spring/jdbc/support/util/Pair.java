@@ -27,9 +27,9 @@ public final class Pair<V1, V2> implements Serializable {
   
   /**
    * This function used to create a new Pair object.
-   * @param v1
-   * @param v2
-   * @return 
+   * @param v1 left value
+   * @param v2 right value
+   * @return pair object
    * @since 0.1
    */
   public static <V1, V2> Pair<V1, V2> of(V1 v1, V2 v2) {
