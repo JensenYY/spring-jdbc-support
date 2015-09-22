@@ -8,7 +8,7 @@ package im.dadoo.spring.jdbc.support.util;
 import java.io.Serializable;
 
 /**
- * <p>Pair is used to define sql parameter which contains two field.<p>
+ * <p>Pair is used to define sql parameter which contains two field.</p>
  * <p>For example, BETWEEN clause contains two fields such as begin and end</p>
  * @author codekitten
  * @since 0.1
@@ -27,9 +27,9 @@ public final class Pair<V1, V2> implements Serializable {
   
   /**
    * This function used to create a new Pair object.
-   * @param v1
-   * @param v2
-   * @return 
+   * @param v1 left value
+   * @param v2 right value
+   * @return pair object
    * @since 0.1
    */
   public static <V1, V2> Pair<V1, V2> of(V1 v1, V2 v2) {

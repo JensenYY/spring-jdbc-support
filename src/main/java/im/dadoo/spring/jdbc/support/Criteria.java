@@ -60,9 +60,9 @@ public final class Criteria {
    * 
    * Caution:If the values is not null, the length of fields and values must be the same!
    * 
-   * @param fields
-   * @param values
-   * @return
+   * @param fields the fields expected to be updated
+   * @param values the placeholder of values
+   * @return SET clause
    * @since 0.3
    */
   public static final String set(List<String> fields, List<String> values) {
@@ -141,7 +141,6 @@ public final class Criteria {
    * Then you can use spring-jdbc to handle the datebase.
    * 
    * @param fields fields for ordering
-   * @param values placeholder for value
    * @return generated parted sql with order
    * @since 0.3
    */
