@@ -6,7 +6,6 @@ import im.dadoo.spring.jdbc.support.util.Util;
 import java.util.ArrayList;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Criteria is used to generate "where" clause, "set" clause and "order" clause dynamically
@@ -17,32 +16,6 @@ import java.util.Map;
 public final class Criteria {
   
   private Criteria() {}
-
-  public static final String into(final List<String> fields) {
-    return into(fields, null);
-  }
-  
-  public static final String into(final List<String> fields, final Map<String, String> valueMap) {
-    String result = null;
-    if (fields == null) {
-      throw new IllegalArgumentException("fields should not be null");
-    } else {
-      List<String> values = new ArrayList<>(fields.size());
-      if (valueMap == null || valueMap.isEmpty()) {
-        values = Util.placeholder(fields);
-      } else {
-        for (String field : fields) {
-          String value = valueMap.get(field);
-          if (value == null || value.isEmpty()) {
-            value = Util.placeholder(field);
-          }
-          values.add(value);
-        }
-      }
-      result = String.format("(%s) VALUES(%s)", Util.join(fields), Util.join(values));
-    }
-    return result;
-  }
   
   /**
    * This function is to generate "SET" string for the "UPDATE" sentence.
@@ -155,6 +128,23 @@ public final class Criteria {
     return result;
   }
   
+  /**
+   * This function is to generate "ORDER BY" clause for select sql sentence.
+   * you can follow the code as below to use this function.
+   * <code>
+   *   List&lt;String&gt; fields = new ArrayList&lt;&gt;();
+   *   fields.add("name");
+   *   fields.add("date");
+   *   String clause = Criteria.orderBy(fields);
+   *   //clause will be "ORDER BY date :order@date,name :order@name"
+   * </code>
+   * Then you can use spring-jdbc to handle the datebase.
+   * 
+   * @param fields fields for ordering
+   * @param values placeholder for value
+   * @return generated parted sql with order
+   * @since 0.3
+   */
   public static final String orderBy(final List<String> fields) {
     return orderBy(fields, null);
   }
@@ -162,9 +152,20 @@ public final class Criteria {
   /**
    * This function is to generate "ORDER BY" clause for select sql sentence.
    * you can follow the code as below to use this function.
+   * <code>
+   *   List&lt;String&gt; fields = new ArrayList&lt;&gt;();
+   *   fields.add("name");
+   *   fields.add("date");
+   *   List&lt;String&gt; values = new ArrayList&lt;&gt;();
+   *   fields.add("order_name");
+   *   fields.add("order_date");
+   *   String clause = Criteria.orderBy(fields,values);
+   *   //clause will be "ORDER BY date :order_date,name :order_name"
+   * </code>
+   * Then you can use spring-jdbc to handle the datebase.
    * 
    * @param fields fields for ordering
-   * @param values 
+   * @param values placeholder for value
    * @return generated parted sql with order
    * @since 0.3
    */
