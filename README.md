@@ -1,6 +1,7 @@
 Spring Jdbc Support
 ===================
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/im.dadoo/spring-jdbc-support/badge.svg)](https://maven-badges.herokuapp.com/maven-central/im.dadoo/spring-jdbc-support)
+[![Build Status](https://travis-ci.org/dadooteam/spring-jdbc-support.svg?branch=master)](https://travis-ci.org/dadooteam/spring-jdbc-support)
 
 ##Introduction
 dynamically build "where" clause for spring jdbc.
