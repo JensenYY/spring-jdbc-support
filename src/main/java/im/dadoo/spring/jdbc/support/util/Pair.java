@@ -27,6 +27,7 @@ public final class Pair<V1, V2> implements Serializable {
   
   /**
    * This function used to create a new Pair object.
+   * 
    * @param v1 left value
    * @param v2 right value
    * @return pair object
