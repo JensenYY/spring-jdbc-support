@@ -54,7 +54,6 @@ public final class Util {
   
   public static final boolean checkFields(List<String> fields) {
     boolean result = true;
-    result = result && fields != null && !fields.isEmpty();
     for (String field : fields) {
       result = result && field != null && !field.isEmpty();
     }

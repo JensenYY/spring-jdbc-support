@@ -46,7 +46,7 @@ public class CriteriaTest {
   @Test
   public void test_where_3() {
     List<Condition> conds = new ArrayList<>();
-    Assert.assertEquals(null, Criteria.where(conds));
+    Assert.assertEquals("", Criteria.where(conds));
   }
   
   @Test

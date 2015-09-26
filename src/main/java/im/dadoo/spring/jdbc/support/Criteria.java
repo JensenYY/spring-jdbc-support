@@ -66,34 +66,32 @@ public final class Criteria {
    * @since 0.3
    */
   public static final String set(List<String> fields, List<String> values) {
-    String result = null;
-    
-    if (!Util.checkFields(fields)) {
-      throw new IllegalArgumentException("fields illegal");
-    }
-    if (values == null) {
-      values = new ArrayList<>();
-      for (String field : fields) {
-        values.add(field);
-      }
-    }
-    if (fields.size() != values.size()) {
-      throw new IllegalArgumentException("The length of fields and values should be the same");
-    }
-    
-    List<String> kvs = new ArrayList<>(fields.size());
-    for (int i = 0; i < fields.size(); i++) {
-      String field = fields.get(i);
-      String value = values.get(i);
-      if (field == null || field.isEmpty()) {
+    String result = "";
+    if (fields != null && !fields.isEmpty()) {
+      if (!Util.checkFields(fields)) {
         throw new IllegalArgumentException("some field in fields is null or empty");
       }
-      if (value == null || value.isEmpty()) {
-        value = field;
+      if (values == null) {
+        values = new ArrayList<>();
+        for (String field : fields) {
+          values.add(field);
+        }
       }
-      kvs.add(String.format("%s = %s", field, Util.placeholder(value)));
+      if (fields.size() != values.size()) {
+        throw new IllegalArgumentException("The length of fields and values should be the same");
+      }
+      
+      List<String> kvs = new ArrayList<>(fields.size());
+      for (int i = 0; i < fields.size(); i++) {
+        String field = fields.get(i);
+        String value = values.get(i);
+        if (value == null || value.isEmpty()) {
+          value = field;
+        }
+        kvs.add(String.format("%s = %s", field, Util.placeholder(value)));
+      }
+      result = String.format("SET %s", Util.join(kvs));
     }
-    result = String.format("SET %s", Util.join(kvs));
     return result;
   }
   
@@ -113,7 +111,7 @@ public final class Criteria {
    * @return WHERE clause
    */
   public static final String where(final List<Condition> conditions) {
-    String result = null;
+    String result = "";
     if (conditions != null && !conditions.isEmpty()) {
       if (!Util.checkConditions(conditions)) {
         throw new IllegalArgumentException("conditions illegal");
@@ -123,8 +121,7 @@ public final class Criteria {
         list.add(makeConditionSql(condition));
       }
       result = String.format("WHERE %s", Util.join(list, " AND "));
-    }
-    
+    } 
     return result;
   }
   
@@ -169,32 +166,32 @@ public final class Criteria {
    * @since 0.3
    */
   public static final String orderBy(List<String> fields, List<String> values) {
-    String result = null;
-    if (!Util.checkFields(fields)) {
-      throw new IllegalArgumentException("fields illegal");
-    }
-    if (values == null) {
-      values = new ArrayList<>();
-      for (String field : fields) {
-        values.add(String.format("order@%s", field));
-      }
-    }
-    if (fields.size() != values.size()) {
-      throw new IllegalArgumentException("The length of fields and values should be the same");
-    }
-    List<String> kvs = new ArrayList<>(fields.size());
-    for (int i = 0; i < fields.size(); i++) {
-      String field = fields.get(i);
-      String value = values.get(i);
-      if (field == null || field.isEmpty()) {
+    String result = "";
+    if (fields != null && !fields.isEmpty()) {
+      if (!Util.checkFields(fields)) {
         throw new IllegalArgumentException("some field in fields is null or empty");
       }
-      if (value == null || value.isEmpty()) {
-        value = String.format("order@%s", field);
+      if (values == null) {
+        values = new ArrayList<>();
+        for (String field : fields) {
+          values.add(String.format("order@%s", field));
+        }
       }
-      kvs.add(String.format("%s %s", field, Util.placeholder(value)));
+      if (fields.size() != values.size()) {
+        throw new IllegalArgumentException("The length of fields and values should be the same");
+      }
+      List<String> kvs = new ArrayList<>(fields.size());
+      for (int i = 0; i < fields.size(); i++) {
+        String field = fields.get(i);
+        String value = values.get(i);
+        if (value == null || value.isEmpty()) {
+          value = String.format("order@%s", field);
+        }
+        kvs.add(String.format("%s %s", field, Util.placeholder(value)));
+      }
+      result = String.format("ORDER BY %s", Util.join(kvs));
     }
-    result = String.format("ORDER BY %s", Util.join(kvs));
+    
     return result;    
   }
   
