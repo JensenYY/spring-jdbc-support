@@ -32,7 +32,7 @@ public final class Criteria {
    * @return SET clause
    * @since 0.1
    */
-  public static final String set(final List<String> fields) {
+  public static String set(final List<String> fields) {
     return set(fields, null);
   }
   
@@ -65,7 +65,7 @@ public final class Criteria {
    * @return SET clause
    * @since 0.3
    */
-  public static final String set(List<String> fields, List<String> values) {
+  public static String set(List<String> fields, List<String> values) {
     String result = "";
     if (fields != null && !fields.isEmpty()) {
       if (!Util.checkFields(fields)) {
@@ -110,21 +110,33 @@ public final class Criteria {
    * @param conditions conditions for where clause
    * @return WHERE clause
    */
-  public static final String where(final List<Condition> conditions) {
+  public static String where(final List<Condition> conditions) {
+    return where(conditions, null);
+  }
+
+  public static String where(final List<Condition> conditions, List<String> queries) {
     String result = "";
+    List<String> list = new ArrayList<>();
     if (conditions != null && !conditions.isEmpty()) {
       if (!Util.checkConditions(conditions)) {
         throw new IllegalArgumentException("conditions illegal");
       }
-      List<String> list = new ArrayList<>();
       for (Condition condition : conditions) {
         list.add(makeConditionSql(condition));
       }
+    }
+    if (queries != null && !queries.isEmpty()) {
+      for (String query : queries) {
+        if (query != null && !query.isEmpty()) {
+          list.add(query);
+        }
+      }
+    }
+    if (!list.isEmpty()) {
       result = String.format("WHERE %s", Util.join(list, " AND "));
-    } 
+    }
     return result;
   }
-  
   /**
    * This function is to generate "ORDER BY" clause for select sql sentence.
    * you can follow the code as below to use this function.
@@ -141,7 +153,7 @@ public final class Criteria {
    * @return generated parted sql with order
    * @since 0.3
    */
-  public static final String orderBy(final List<String> fields) {
+  public static String orderBy(final List<String> fields) {
     return orderBy(fields, null);
   }
   
@@ -165,7 +177,7 @@ public final class Criteria {
    * @return generated parted sql with order
    * @since 0.3
    */
-  public static final String orderBy(List<String> fields, List<String> values) {
+  public static String orderBy(List<String> fields, List<String> values) {
     String result = "";
     if (fields != null && !fields.isEmpty()) {
       if (!Util.checkFields(fields)) {
