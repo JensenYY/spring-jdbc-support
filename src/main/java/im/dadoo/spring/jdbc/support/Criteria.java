@@ -1,5 +1,6 @@
 package im.dadoo.spring.jdbc.support;
 
+import im.dadoo.spring.jdbc.support.condition.Order;
 import im.dadoo.spring.jdbc.support.util.Pair;
 import im.dadoo.spring.jdbc.support.condition.Condition;
 import im.dadoo.spring.jdbc.support.util.Util;
@@ -114,6 +115,23 @@ public final class Criteria {
     return where(conditions, null);
   }
 
+  /**
+   * This function is to generate "WHERE" clause for all the sql sentence.
+   * When you want to select or update or delete the records with some "WHERE" conditions,
+   * you can follow the code as below.
+   * <code>
+   *   List&lt;Condition&gt; conds = new ArrayList&lt;&gt;();
+   *   conds.add(Conditions.eq(name));
+   *   conds.add(Conditions.gt(date));
+   *   List&lt;String&gt; queries = new ArrayList&lt;&gt;();
+   *   queries.add("OR state=:state");
+   *   String clause = Criteria.where(conds, queries);
+   *   //clause will be "WHERE name = :name AND date &gt; :date OR state=:state"
+   * </code>
+   * Then you can use spring-jdbc to handle the datebase.
+   * @param conditions conditions for where clause
+   * @return WHERE clause
+   */
   public static String where(final List<Condition> conditions, List<String> queries) {
     String result = "";
     List<String> list = new ArrayList<>();
@@ -137,73 +155,34 @@ public final class Criteria {
     }
     return result;
   }
-  /**
-   * This function is to generate "ORDER BY" clause for select sql sentence.
-   * you can follow the code as below to use this function.
-   * <code>
-   *   List&lt;String&gt; fields = new ArrayList&lt;&gt;();
-   *   fields.add("name");
-   *   fields.add("date");
-   *   String clause = Criteria.orderBy(fields);
-   *   //clause will be "ORDER BY date :order@date,name :order@name"
-   * </code>
-   * Then you can use spring-jdbc to handle the datebase.
-   * 
-   * @param fields fields for ordering
-   * @return generated parted sql with order
-   * @since 0.3
-   */
-  public static String orderBy(final List<String> fields) {
-    return orderBy(fields, null);
-  }
   
   /**
    * This function is to generate "ORDER BY" clause for select sql sentence.
    * you can follow the code as below to use this function.
    * <code>
-   *   List&lt;String&gt; fields = new ArrayList&lt;&gt;();
-   *   fields.add("name");
-   *   fields.add("date");
-   *   List&lt;String&gt; values = new ArrayList&lt;&gt;();
-   *   fields.add("order_name");
-   *   fields.add("order_date");
-   *   String clause = Criteria.orderBy(fields,values);
-   *   //clause will be "ORDER BY date :order_date,name :order_name"
+   *   List&lt;Pair&lt;String,Order&gt;&gt; orders = new ArrayList&lt;&gt;();
+   *   fields.add(Pair.of("name", Order.ASC));
+   *   fields.add(Pair.of("date", Order.DESC));
+   *   String clause = Criteria.orderBy(orders);
+   *   //clause will be "ORDER BY name ASC,date DESC"
    * </code>
    * Then you can use spring-jdbc to handle the datebase.
    * 
-   * @param fields fields for ordering
-   * @param values placeholder for value
+   * @param orders fields for ordering
    * @return generated parted sql with order
    * @since 0.3
    */
-  public static String orderBy(List<String> fields, List<String> values) {
+  public static String orderBy(List<Pair<String, Order>> orders) {
     String result = "";
-    if (fields != null && !fields.isEmpty()) {
-      if (!Util.checkFields(fields)) {
-        throw new IllegalArgumentException("some field in fields is null or empty");
-      }
-      if (values == null) {
-        values = new ArrayList<>();
-        for (String field : fields) {
-          values.add(String.format("order@%s", field));
+    if (orders != null && !orders.isEmpty()) {
+      List<String> kvs = new ArrayList<>();
+      for (Pair<String, Order> order : orders) {
+        if (order.getV1() != null && !order.getV1().isEmpty()) {
+          kvs.add(String.format("%s %s", order.getV1(), order.getV2().getName()));
         }
-      }
-      if (fields.size() != values.size()) {
-        throw new IllegalArgumentException("The length of fields and values should be the same");
-      }
-      List<String> kvs = new ArrayList<>(fields.size());
-      for (int i = 0; i < fields.size(); i++) {
-        String field = fields.get(i);
-        String value = values.get(i);
-        if (value == null || value.isEmpty()) {
-          value = String.format("order@%s", field);
-        }
-        kvs.add(String.format("%s %s", field, Util.placeholder(value)));
       }
       result = String.format("ORDER BY %s", Util.join(kvs));
     }
-    
     return result;    
   }
   

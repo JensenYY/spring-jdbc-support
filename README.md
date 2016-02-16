@@ -15,57 +15,53 @@ dynamically build "order by" clause for spring jdbc.
 The Apache License, Version 2.0
 
 ##Version
-0.3
+0.5
 
 ##Downloads
 	<dependency>
 	  <groupId>im.dadoo</groupId>
 	  <artifactId>spring-jdbc-support</artifactId>
-	  <version>0.3</version>
+	  <version>0.5</version>
 	</dependency>
 
 ##Example
 ```java
-private static final String LIST_SQL_TPL = "SELECT * FROM article %s %s LIMIT :offset,:pagesize";
+private static final String LIST_SQL_TPL = "SELECT * FROM article %s %s LIMIT :offset,:length";
 
 private static final String UPDATE_SQL_TPL = "UPDATE article %s WHERE id=:id";
 
-private RowMapper<Article> mainRowMapper = new ArticleRowMapper();
+private ArticleRowMapper mainRowMapper = new ArticleRowMapper();
 
-public List<Article> list(Map<String, Object> paramMap, 
-          List<Pair<String, Order>> orders, 
-          int pagecount, int pagesize) {
-    List<Article> result = Lists.newArrayList();
-    List<Condition> conditions = Lists.newArrayList();
+public List<Article> page(Map<String, Object> params, List<Pair<String, Order>> orders, int pageCount, int pageSize) {
+    List<Article> result = new ArrayList<>();
+    List<Condition> conditions = new ArrayList<>();
+    List<String> queries = new ArrayList<>();
     MapSqlParameterSource sps = new MapSqlParameterSource();
-    if (paramMap.containsKey("title")) {
+    if (params.containsKey("title")) {
       conditions.add(Conditions.like("title"));
-      sps.addValue("title", paramMap.get("title"));
+      sps.addValue("title", params.get("title"));
     }
-    if (paramMap.containsKey("click")) {
+    if (params.containsKey("click")) {
       conditions.add(Conditions.ge("click"));
-      sps.addValue("click", paramMap.get("click"));
+      sps.addValue("click", params.get("click"));
     }
+    queries.add("EXISTS(SELECT * FROM rtag WHERE rtag.article_id=article.id)");
     String where = Criteria.where(conditions);
-    List<String> fields = new ArrayList<>();
-    for (Pair<String, Order> order : orders) {
-        fields.add(order.getV1());
-        sps.addValue(String.format("order@%s",order.getV1()), order.getV2().getName());
-    }
-    sps.addValue("offset", (pagecount - 1) * pagesize);
-    sps.addValue("pagesize", pagesize);
-    String orderBy = Criteria.orderBy(fields);
+    //SELECT * FROM article WHERE title LIKE :title AND click=:click AND EXISTS(SELECT * FROM rtag WHERE rtag.article_id=article.id) ORDER BY id DESC LIMIT :offset,:length
+    sps.addValue("offset", (pageCount - 1) * pageSize);
+    sps.addValue("length", pageSize);
+    String orderBy = Criteria.orderBy(orders);
     String sql = String.format(LIST_SQL_TPL, where, orderBy);
     result = this.jdbcTemplate.query(sql, sps, this.mainRowMapper);
     return result;
 }
 
-public void update(Map<String, Object> updateMap) {    
+public void update(Map<String, Object> params) {
     List<String> fields = new ArrayList<>();
     MapSqlParameterSource sps = new MapSqlParameterSource();
-    for (String key : updateMap.keySet()) {
+    for (String key : params.keySet()) {
       fields.add(key);
-      sps.addValue(key, updateMap.get(key));
+      sps.addValue(key, params.get(key));
     }
     String update = Criteria.set(fields);
     String sql = String.format(UPDATE_SQL_TPL, update);
@@ -84,7 +80,5 @@ class ArticleRowMapper implements RowMapper<Article> {
       article.setClick(rs.getLong("click"));
       return article;
     }
-}
 
 ```
-##ChangeLog

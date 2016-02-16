@@ -13,6 +13,8 @@ import im.dadoo.spring.jdbc.support.condition.Conditions;
 import java.util.ArrayList;
 import java.util.List;
 
+import im.dadoo.spring.jdbc.support.condition.Order;
+import im.dadoo.spring.jdbc.support.util.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -48,14 +50,23 @@ public class CriteriaTest {
     List<Condition> conds = new ArrayList<>();
     Assert.assertEquals("", Criteria.where(conds));
   }
+
+  @Test
+  public void test_where_4() {
+    List<Condition> conds = new ArrayList<>();
+    conds.add(Conditions.eq("create_date"));
+    List<String> queries = new ArrayList<>();
+    queries.add("EXISTS(SELECT * FROM rtag WHERE rtag.article_id=article.id)");
+    Assert.assertEquals("WHERE create_date = :create_date AND EXISTS(SELECT * FROM rtag WHERE rtag.article_id=article.id)", Criteria.where(conds, queries));
+  }
   
   @Test
   public void test_orderBy() {
-    List<String> fields = new ArrayList<>();
-    fields.add("date");
-    Assert.assertEquals("ORDER BY date :order@date", Criteria.orderBy(fields));
-    fields.add("name");
-    Assert.assertEquals("ORDER BY date :order@date,name :order@name", Criteria.orderBy(fields));
+    List<Pair<String, Order>> fields = new ArrayList<>();
+    fields.add(Pair.of("date", Order.DESC));
+    Assert.assertEquals("ORDER BY date DESC", Criteria.orderBy(fields));
+    fields.add(Pair.of("name", Order.ASC));
+    Assert.assertEquals("ORDER BY date DESC,name ASC", Criteria.orderBy(fields));
   }
   
   @Test

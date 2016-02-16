@@ -21,7 +21,7 @@ public class Condition implements Serializable {
   /** 查询条件中的操作方式，例如=,&lt;,&gt;等 */
   protected Operation op;
   
-  /** 查询条件中的值  */
+  /** 查询条件中的值(占位符)  */
   protected Object    value;
   
   public Condition() {
