@@ -130,6 +130,7 @@ public final class Criteria {
    * </code>
    * Then you can use spring-jdbc to handle the datebase.
    * @param conditions conditions for where clause
+   * @param queries plain where clause
    * @return WHERE clause
    */
   public static String where(final List<Condition> conditions, List<String> queries) {
